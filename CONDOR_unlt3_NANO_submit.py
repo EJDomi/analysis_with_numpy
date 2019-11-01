@@ -9,16 +9,14 @@ home = os.environ['HOME']
 #######################################
 RUN_DIR = pwd
 TEMP = pwd
-#EXE  = "MakeReducedNtuple_NANO_DeepCSV.x"
-#EXE  = "MakeReducedNtuple_NANO_DeepJet.x"
-EXE  = "MakeReducedNtuple_NANO_IV.x"
+EXE  = "MakeReducedNtuple_NANO.x"
 #EXE  = "MakeEventCount_NANO.x"
 TREE = "Events"
-OUT  = pwd + "output_30Sep19"
+OUT  = pwd + "/output_IV/"
 #OUT = pwd
 LIST = "default.list"
 QUEUE = ""
-MAXN = 10
+MAXN = 15
 
 def new_listfile(rootlist, listfile):
     mylist = open(listfile,'w')
@@ -66,7 +64,7 @@ def write_sh(srcfile,ifile,ofile,lfile,dataset,filetag,evtcnt):
     fsrc.write('error = '+lfile+"_err.log \n")
     fsrc.write('log = '+lfile+"_log.log \n")
     fsrc.write('Requirements = (Machine != "red-node000.unl.edu")\n')
-    #fsrc.write('request_memory = 4 GB \n')
+    #fsrc.write('request_memory = 8 GB \n')
     fsrc.write('queue \n')
     #fsrc.write('cd '+RUN_DIR+" \n")
     #fsrc.write('source ../RestFrames/setup_RestFrames.sh \n')
@@ -110,7 +108,7 @@ if __name__ == "__main__":
 
     print listname
 
-    NAME = listname.replace(".list",'')
+    NAME = listname.replace(".list",'_NEW')
     
     print NAME
     print RUN_DIR

@@ -51,8 +51,8 @@ def make_2D_plots(hists_, suffix_):
                 if hist_name not in pc: continue
                 can = make_me_a_canvas()
                 can.cd() 
-                if 'N' not in hist_name.split('_')[0]: hist.RebinX(4)
-                if 'N' not in hist_name.split('_')[1]: hist.RebinY(4)
+                if 'N' not in hist_name.split('_')[0]: hist.RebinX(16)
+                if 'N' not in hist_name.split('_')[1]: hist.RebinY(16)
                 hist.Draw("COLZ")
                 hist.GetXaxis().CenterTitle()
                 hist.GetXaxis().SetTitleFont(42)
@@ -84,7 +84,7 @@ def make_2D_plots(hists_, suffix_):
                     ymax = pc[hist_name]['ymax']
                     hist.GetYaxis().SetRangeUser(ymin, ymax) 
                 #hist.GetZaxis().SetRangeUser(0.9*hist.GetMinimum(0.0),1.1*hist.GetMaximum())
-                hist.GetZaxis().SetRangeUser(0.,1.1*hist.GetMaximum())
+                hist.GetZaxis().SetRangeUser(0.001,1.1*hist.GetMaximum())
                 CMS_lumi.writeExtraText = 1
                 CMS_lumi.extraText = 'Simulation'
                 CMS_lumi.CMS_lumi(can, 0, 0)
@@ -94,7 +94,7 @@ def make_2D_plots(hists_, suffix_):
                 l.SetTextSize(0.055)
                 l.SetTextFont(42)
                 if 'SMS' in sample:
-                    l.DrawLatex(0.6,0.943,sc[sample]['legend']+' '+tree)
+                    l.DrawLatex(0.45,0.943,' '.join(sc[sample]['legend'].split('-')[-2:])+' '+tree)
                 else:
                     l.DrawLatex(0.6,0.943,sc[sample]['legend'])
                 can.SetLogz()
@@ -102,8 +102,100 @@ def make_2D_plots(hists_, suffix_):
                 can.SaveAs(out_dir+'/h_'+hist.GetName()+'_'+suffix_+'.root')
                 can.SaveAs(out_dir+'/h_'+hist.GetName()+'_'+suffix_+'.pdf')
 
-def make_overlay_plot(hists_, samples_):
+
+def make_overlay_plot(hists_, suffix_):
     print 'for posterity'
+    hists_tmp = OrderedDict()
+    if not (os.path.isdir('./plots_'+date)): os.mkdir('./plots_'+date)
+    out_dir = os.path.join('./plots_'+date)
+
+    for sample in hists_:
+        for tree in hists_[sample]:
+            for hist_name, hist in hists_[sample][tree].items():
+                if hist_name not in pc: continue
+                if not hist.InheritsFrom(rt.TH1.Class()): continue                    
+                if hist.InheritsFrom(rt.TH2.Class()): continue                    
+                hists_tmp[hist_name] = OrderedDict()
+
+    for sample in hists_:
+        for tree in hists_[sample]:
+            for hist_name, hist in hists_[sample][tree].items():
+                if hist_name not in pc: continue
+                if not hist.InheritsFrom(rt.TH1.Class()): continue                    
+                if hist.InheritsFrom(rt.TH2.Class()): continue                    
+                hists_tmp[hist_name][sample] = OrderedDict()
+    for sample in hists_:
+        for tree in hists_[sample]:
+            for hist_name, hist in hists_[sample][tree].items():
+                if hist_name not in pc: continue
+                if not hist.InheritsFrom(rt.TH1.Class()): continue                    
+                if hist.InheritsFrom(rt.TH2.Class()): continue                    
+                hists_tmp[hist_name][sample][tree] = hist
+    for hist in hists_tmp:
+        can = make_me_a_canvas()
+        can.cd() 
+        leg = rt.TLegend(0.2,0.73,0.75,0.93,'','brNDC') 
+        leg.SetBorderSize(0)
+        leg.SetNColumns(2)
+        leg.SetTextSize(0.02)
+        leg.SetMargin(0.2)
+        leg.SetFillStyle(0)
+        for sample in hists_tmp[hist]:
+            for itr, tree in enumerate(hists_tmp[hist][sample]):
+                if int(hists_tmp[hist][sample][tree].GetEntries()) == 0: continue
+                hists_tmp[hist][sample][tree].SetLineColor(sc[sample]['color']+itr*2)
+                hists_tmp[hist][sample][tree].SetLineStyle(sc[sample]['style'])
+                hists_tmp[hist][sample][tree].SetLineWidth(sc[sample]['width'])
+                if sc[sample]['fill']: hists_tmp[hist][sample][tree].SetFillColor(sc[sample]['fill'])
+                if sc[sample]['fill_style']: hists_tmp[hist][sample][tree].SetFillStyle(sc[sample]['fill_style'])
+                print hist, sample, tree
+                stop_m = tree.split('_')[1]
+                neut_m = tree.split('_')[2]
+                if 'SMS' in sample:
+                    leg.AddEntry(hists_tmp[hist][sample][tree], sc[sample]['legend']+' M(#tilde{t})='+stop_m+', M(#tilde{#chi}_{1}^{0})='+neut_m, 'fl')
+                else:
+                    leg.AddEntry(hists_tmp[hist][sample], sc[sample]['legend'], 'fl')
+
+                if 'N' not in hist: hists_tmp[hist][sample][tree].Rebin(16)
+                #hists_tmp[hist][sample][tree].Scale(1/hists_tmp[hist][sample][tree].Integral())
+   
+                hists_tmp[hist][sample][tree].GetXaxis().SetTitle(pc[hist]['xlabel'])
+                hists_tmp[hist][sample][tree].GetXaxis().CenterTitle()
+                hists_tmp[hist][sample][tree].GetXaxis().SetTitleFont(42)
+                hists_tmp[hist][sample][tree].GetXaxis().SetTitleSize(0.06)
+                hists_tmp[hist][sample][tree].GetXaxis().SetTitleOffset(1.06)
+                hists_tmp[hist][sample][tree].GetXaxis().SetLabelFont(42)
+                hists_tmp[hist][sample][tree].GetXaxis().SetLabelSize(0.05)
+                hists_tmp[hist][sample][tree].GetYaxis().SetTitle(pc[hist]['ylabel'])
+                hists_tmp[hist][sample][tree].GetYaxis().CenterTitle()
+                hists_tmp[hist][sample][tree].GetYaxis().SetTitleFont(42)
+                hists_tmp[hist][sample][tree].GetYaxis().SetTitleSize(0.06)
+                hists_tmp[hist][sample][tree].GetYaxis().SetTitleOffset(1.12)
+                hists_tmp[hist][sample][tree].GetYaxis().SetLabelFont(42)
+                hists_tmp[hist][sample][tree].GetYaxis().SetLabelSize(0.05)
+
+                ymax = hists_tmp[hist][sample][tree].GetMaximum()
+                #hists_tmp[hist][sample][tree].SetMinimum(0.01)
+                #hists_tmp[hist][sample][tree].SetMaximum(250*ymax)
+
+                hists_tmp[hist][sample][tree].SetMinimum(0.01)
+                hists_tmp[hist][sample][tree].SetMaximum(2.*ymax)
+
+                hists_tmp[hist][sample][tree].Draw('histsame')
+        can.cd()
+        CMS_lumi.writeExtraText = 1
+        CMS_lumi.extraText = 'Simulation'
+        CMS_lumi.CMS_lumi(can, 0, 0)
+        leg.Draw()
+        can.SetLogy()
+        can.Update()
+        #can.SaveAs(out_dir+'/hoverlay_log_'+hist+'_'+suffix_+'.root')
+        #can.SaveAs(out_dir+'/hoverlay_log_'+hist+'_'+suffix_+'.pdf')
+        can.SetLogy(0)
+        can.Update()
+        can.SaveAs(out_dir+'/hoverlay_'+hist+'_'+suffix_+'.root')
+        can.SaveAs(out_dir+'/hoverlay_'+hist+'_'+suffix_+'.pdf')
+
 
 def make_stacked_plots(hists_, sig_hists_ = None, print_plots = True, suffix_=''):
     '''
@@ -161,13 +253,13 @@ def make_stacked_plots(hists_, sig_hists_ = None, print_plots = True, suffix_=''
     for hist in n_entries:
         n_entries[hist] = OrderedDict(sorted(n_entries[hist].items(), key=lambda x: x[1]))
         can = make_me_a_canvas()
-        if pc[hist]['log']:
-            can.SetLogy()
         can.cd() 
-        leg = rt.TLegend(0.6,0.5,0.8,0.88,'','brNDC') 
+        leg = rt.TLegend(0.35,0.73,0.7,0.93,'','brNDC') 
         leg.SetBorderSize(0)
-        leg.SetTextSize(0.02)
+        leg.SetNColumns(2)
+        leg.SetTextSize(0.028)
         leg.SetMargin(0.2)
+        leg.SetFillStyle(0)
         for sample in n_entries[hist]:
             if 'N' not in hist: hists_tmp[hist][sample].Rebin(4)
             hists_tmp[hist][sample].SetLineColor(sc[sample]['color'])
@@ -188,14 +280,9 @@ def make_stacked_plots(hists_, sig_hists_ = None, print_plots = True, suffix_=''
                     print hist, sample, tree
                     stop_m = tree.split('_')[1]
                     neut_m = tree.split('_')[2]
-                    leg.AddEntry(sig_hists_tmp[hist][sample][tree], '#splitline{'+sc[sample]['legend']+'}{M(#tilde{t})='+stop_m+', M(#tilde{#chi}_{1}^{0})='+neut_m+'}', 'fl')
+                    leg.AddEntry(sig_hists_tmp[hist][sample][tree], 'T2-4bd M(#tilde{t})='+stop_m+', M(#tilde{#chi}_{1}^{0})='+neut_m, 'fl')
         can.cd()
         stack[hist].Draw('hist')
-        if sig_hists_:
-            for sample in sig_hists_tmp[hist]:
-                for tree in sig_hists_tmp[hist][sample]:
-                    if 'N' not in hist: sig_hists_tmp[hist][sample][tree].Rebin(4)
-                    sig_hists_tmp[hist][sample][tree].Draw('histsame')
         stack[hist].GetXaxis().SetTitle(pc[hist]['xlabel'])
         stack[hist].GetXaxis().CenterTitle()
         stack[hist].GetXaxis().SetTitleFont(42)
@@ -210,19 +297,42 @@ def make_stacked_plots(hists_, sig_hists_ = None, print_plots = True, suffix_=''
         stack[hist].GetYaxis().SetTitleOffset(1.12)
         stack[hist].GetYaxis().SetLabelFont(42)
         stack[hist].GetYaxis().SetLabelSize(0.05)
-        stack[hist].SetMinimum(0.00001)
+        can.Update()
+        if pc[hist]['xmax'] is not None: 
+            xmin = pc[hist]['xmin']
+            xmax = pc[hist]['xmax']
+            stack[hist].GetXaxis().SetRangeUser(xmin, xmax) 
+            can.Update()
+        # if pc[hist]['ymax'] is not None: 
+        #     ymin = pc[hist]['ymin']
+        #     ymax = pc[hist]['ymax']
+        #     stack[hist].GetYaxis().SetRangeUser(ymin, ymax) 
+        # stack[hist].SetMinimum(0.00001)
+        if sig_hists_:
+            for sample in sig_hists_tmp[hist]:
+                for tree in sig_hists_tmp[hist][sample]:
+                    if 'N' not in hist: sig_hists_tmp[hist][sample][tree].Rebin(4)
+                    sig_hists_tmp[hist][sample][tree].Draw('histsame')
+        can.Update()
         CMS_lumi.writeExtraText = 1
         CMS_lumi.extraText = 'Simulation'
         CMS_lumi.CMS_lumi(can, 0, 0)
         leg.Draw()
         can.Update()
         if print_plots:
-            can.SaveAs(out_dir+'/hstack_'+hist+'_'+suffix_+'.root')
-            can.SaveAs(out_dir+'/hstack_'+hist+'_'+suffix_+'.pdf')
             can.SetLogy()
+            ymax = stack[hist].GetMaximum()
+            stack[hist].SetMinimum(0.01)
+            stack[hist].SetMaximum(250*ymax)
             can.Update()
             can.SaveAs(out_dir+'/hstack_log_'+hist+'_'+suffix_+'.root')
             can.SaveAs(out_dir+'/hstack_log_'+hist+'_'+suffix_+'.pdf')
+            can.SetLogy(0)
+            stack[hist].SetMinimum(0.01)
+            stack[hist].SetMaximum(1.5*ymax)
+            can.Update()
+            can.SaveAs(out_dir+'/hstack_'+hist+'_'+suffix_+'.root')
+            can.SaveAs(out_dir+'/hstack_'+hist+'_'+suffix_+'.pdf')
 
     #return stack, leg
 
@@ -262,6 +372,7 @@ def make_1D_plots(hists_, suffix_):
                 hist.GetYaxis().SetLabelFont(42)
                 hist.GetYaxis().SetLabelSize(0.05)
                 hist.GetYaxis().SetTitle(pc[hist_name]['ylabel'])
+                hist.GetYaxis().SetRangeUser(0.001,1.2*hist.GetMaximum())
                 CMS_lumi.writeExtraText = 1
                 CMS_lumi.extraText = 'Simulation'
                 CMS_lumi.CMS_lumi(can, 0, 0)
@@ -271,13 +382,10 @@ def make_1D_plots(hists_, suffix_):
                 l.SetTextSize(0.055)
                 l.SetTextFont(42)
                 l.DrawLatex(0.41,0.943,sc[sample]['legend'])
+      
                 can.Update()
                 can.SaveAs(out_dir+'/h_'+hist.GetName()+'_'+suffix_+'.root')
                 can.SaveAs(out_dir+'/h_'+hist.GetName()+'_'+suffix_+'.pdf')
-                can.SetLogy()
-                can.Update()
-                can.SaveAs(out_dir+'/h_log_'+hist.GetName()+'_'+suffix_+'.root')
-                can.SaveAs(out_dir+'/h_log_'+hist.GetName()+'_'+suffix_+'.pdf')
 
 def read_in_hists(in_file_):
     print 'look at all that posterity' 
@@ -286,6 +394,7 @@ def read_in_hists(in_file_):
     for key in in_file.GetListOfKeys():
         print key.GetName()
         key_name = key.GetName()
+        if key_name not in sc: continue
         sample_dir = in_file.Get(key.GetName())
         hists[key_name] = OrderedDict()
         for tree_key in sample_dir.GetListOfKeys():
@@ -297,8 +406,8 @@ def read_in_hists(in_file_):
                 print hist_key.GetName()
                 hist_name = hist_key.GetName()
                 hist = tree_dir.Get(hist_key.GetName())
-                if 'lowpt' in key_name:
-                    hists[key_name][tree_name]['_'.join(hist_name.split('_')[:-6])] = hist
+                if 'DY' in key_name:
+                    hists[key_name][tree_name]['_'.join(hist_name.split('_')[:-4])] = hist
                 elif '_' in tree_name:
                     hists[key_name][tree_name]['_'.join(hist_name.split('_')[:-5])] = hist
                 else:
@@ -327,85 +436,15 @@ def read_in_hists_opt(in_file_):
 
 
 if __name__ == "__main__":
-    signal_file = './hists_signal_mass_s_sep_leps_risr_0p8_0_isrb_ge_1st_1Oct19.root'
-    sig_hists = read_in_hists_opt(signal_file)
-    suffix = 'risr_0p8_0isrb_ge_1st'
+    signal_file = './output_signal_ttjets_1l_control_25Oct19.root'
+    sig_hists = read_in_hists(signal_file)
+    suffix = 'ttjets_1l'
     make_2D_plots(sig_hists, suffix)
     make_1D_plots(sig_hists, suffix)
 
-    background_file = './hists_background_mass_s_sep_leps_risr_0p8_0_isrb_ge_1st_1Oct19.root'
-    b_hists = read_in_hists_opt(background_file)
-    suffix = 'risr_0p8_0isrb_ge_1st'
-    make_2D_plots(b_hists, suffix)
-    make_1D_plots(b_hists, suffix)
-    make_stacked_plots(b_hists, sig_hists, True, suffix)
-
-
-    signal_file = './hists_signal_mass_s_sep_leps_risr_0p8_0_isrb_ge_1sj_1Oct19.root'
-    sig_hists = read_in_hists_opt(signal_file)
-    suffix = 'risr_0p8_0isrb_ge_1sj'
-    make_2D_plots(sig_hists, suffix)
-    make_1D_plots(sig_hists, suffix)
-
-    background_file = './hists_background_mass_s_sep_leps_risr_0p8_0_isrb_ge_1sj_1Oct19.root'
-    b_hists = read_in_hists_opt(background_file)
-    suffix = 'risr_0p8_0isrb_ge_1sj'
-    make_2D_plots(b_hists, suffix)
-    make_1D_plots(b_hists, suffix)
-    make_stacked_plots(b_hists, sig_hists, True, suffix)
-
-
-    signal_file = './hists_signal_mass_s_sep_leps_risr_0p8_0_isrb_ge_1sv_1Oct19.root'
-    sig_hists = read_in_hists_opt(signal_file)
-    suffix = 'risr_0p8_0isrb_ge_1sv'
-    make_2D_plots(sig_hists, suffix)
-    make_1D_plots(sig_hists, suffix)
-
-    background_file = './hists_background_mass_s_sep_leps_risr_0p8_0_isrb_ge_1sv_1Oct19.root'
-    b_hists = read_in_hists_opt(background_file)
-    suffix = 'risr_0p8_0isrb_ge_1sv'
-    make_2D_plots(b_hists, suffix)
-    make_1D_plots(b_hists, suffix)
-    make_stacked_plots(b_hists, sig_hists, True, suffix)
-
-
-    signal_file = './hists_signal_mass_s_sep_leps_risr_0p8_0_isrb_ge_1sb_1Oct19.root'
-    sig_hists = read_in_hists_opt(signal_file)
-    suffix = 'risr_0p8_0isrb_ge_1sb'
-    make_2D_plots(sig_hists, suffix)
-    make_1D_plots(sig_hists, suffix)
-
-    background_file = './hists_background_mass_s_sep_leps_risr_0p8_0_isrb_ge_1sb_1Oct19.root'
-    b_hists = read_in_hists_opt(background_file)
-    suffix = 'risr_0p8_0isrb_ge_1sb'
-    make_2D_plots(b_hists, suffix)
-    make_1D_plots(b_hists, suffix)
-    make_stacked_plots(b_hists, sig_hists, True, suffix)
-
-
-    signal_file = './hists_signal_mass_s_sep_leps_risr_0p95_0_isrb_ge_1sj_ms_1Oct19.root'
-    sig_hists = read_in_hists_opt(signal_file)
-    suffix = 'risr_0p95_0isrb_ge_1sj_ms_80'
-    make_2D_plots(sig_hists, suffix)
-    make_1D_plots(sig_hists, suffix)
-
-    background_file = './hists_background_mass_s_sep_leps_risr_0p95_0_isrb_ge_1sj_ms_1Oct19.root'
-    b_hists = read_in_hists_opt(background_file)
-    suffix = 'risr_0p95_0isrb_ge_1sj_ms'
-    make_2D_plots(b_hists, suffix)
-    make_1D_plots(b_hists, suffix)
-    make_stacked_plots(b_hists, sig_hists, True, suffix)
-
-
-    signal_file = './hists_signal_mass_s_sep_leps_risr_0p8_0_isrb_1Oct19.root'
-    sig_hists = read_in_hists_opt(signal_file)
-    suffix = 'risr_0p8_0isrb'
-    make_2D_plots(sig_hists, suffix)
-    make_1D_plots(sig_hists, suffix)
-
-    background_file = './hists_background_mass_s_sep_leps_risr_0p8_0_isrb_1Oct19.root'
-    b_hists = read_in_hists_opt(background_file)
-    suffix = 'risr_0p8_0isrb'
+    background_file = './output_background_ttjets_1l_control_25Oct19.root'
+    b_hists = read_in_hists(background_file)
+    suffix = 'ttjets_1l'
     make_2D_plots(b_hists, suffix)
     make_1D_plots(b_hists, suffix)
     make_stacked_plots(b_hists, sig_hists, True, suffix)

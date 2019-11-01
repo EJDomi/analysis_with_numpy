@@ -114,8 +114,8 @@ def process_the_samples(input_sample_list_, truncate_file_ = None, tree_in_dir_ 
         if truncate_file_ is not None:
             file_list = file_list[:truncate_file_]
         if 'SMS' in sample:
-            #trees_to_keep = ['SMS_500_420', 'SMS_500_490', 'SMS_700_620', 'SMS_700_690', 'SMS_800_720']
-            trees_to_keep = []
+            trees_to_keep = ['SMS_500_420', 'SMS_500_490']
+            #trees_to_keep = []
             tree_name_mass = [(int(mass.split('_')[1]), int(mass.split('_')[2])) for mass in tree_list]
             tree_name_mass.sort(key=lambda x: int(x[0]))
             if trees_to_keep:

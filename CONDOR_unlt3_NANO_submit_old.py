@@ -9,12 +9,13 @@ home = os.environ['HOME']
 #######################################
 RUN_DIR = pwd
 TEMP = pwd
-EXE  = "MakeReducedNtuple_NANO_I.x"
-#EXE  = "MakeReducedNtuple_NANO_DeepJ_I.x"
+#EXE  = "MakeReducedNtuple_NANO_DeepCSV.x"
+#EXE  = "MakeReducedNtuple_NANO_DeepJet.x"
+EXE  = "MakeReducedNtuple_NANO_IV.x"
 #EXE  = "MakeEventCount_NANO.x"
 TREE = "Events"
-#OUT  = "/home/t3-ku/crogan/NTUPLES/Processing/"
-OUT = pwd + '/output_17Sep19/'
+OUT  = pwd + "output_30Sep19"
+#OUT = pwd
 LIST = "default.list"
 QUEUE = ""
 MAXN = 10
@@ -52,7 +53,6 @@ def write_sh(srcfile,ifile,ofile,lfile,dataset,filetag,evtcnt):
     fsrc.write('executable = '+EXE+" \n")
     fsrc.write('getenv = True \n')
     fsrc.write('use_x509userproxy = true \n')
-    fsrc.write('Requirements = (Machine != "red-node000.unl.edu")\n')
     fsrc.write('Arguments = ');
     fsrc.write('-ilist='+ifile+" ")
     fsrc.write('-ofile='+ofile+" ")
@@ -65,6 +65,8 @@ def write_sh(srcfile,ifile,ofile,lfile,dataset,filetag,evtcnt):
     fsrc.write('output = '+lfile+"_out.log \n")
     fsrc.write('error = '+lfile+"_err.log \n")
     fsrc.write('log = '+lfile+"_log.log \n")
+    fsrc.write('Requirements = (Machine != "red-node000.unl.edu")\n')
+    #fsrc.write('request_memory = 4 GB \n')
     fsrc.write('queue \n')
     #fsrc.write('cd '+RUN_DIR+" \n")
     #fsrc.write('source ../RestFrames/setup_RestFrames.sh \n')
