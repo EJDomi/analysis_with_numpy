@@ -21,7 +21,7 @@ def get_tree_info_singular(sample_, file_name_, tree_name_, variable_list_, cuts
     Same as get_tree_info_plural, but runs over a single file
     returns structured array containing the list of variables
     """
-    tmp_f = rt.TFile(file_name_, 'r')
+    tmp_f = rt.TFile.Open(file_name_, 'r')
     tmp_t = tmp_f.Get(tree_name_)
     tmp_array = None
     if bool(tmp_t) and tmp_t.InheritsFrom(rt.TTree.Class()): 
@@ -40,7 +40,7 @@ def get_tree_info_singular_deprecated(sample_, file_name_, tree_names_, variable
     tmp_array = {}
     tmp_array[sample_] = OrderedDict()
     for tree in tree_names_:
-        tmp_f = rt.TFile(file_name_, 'r')
+        tmp_f = rt.TFile.Open(file_name_, 'r')
         tmp_t = tmp_f.Get(tree)
         if bool(tmp_t) and tmp_t.InheritsFrom(rt.TTree.Class()):
             if variable_list_: 
@@ -65,7 +65,7 @@ def reduce_and_condense(file_list_of_file_lists, variable_list):
     for branch in branches:
         if branch not in variable_list:
             tree_chain.SetBranchStatus(branch, 0)
-    file_out = rt.TFile('output_condensed.root', 'recreate')
+    file_out = rt.TFile.Open('output_condensed.root', 'recreate')
     reduced_tree = tree_chain.CloneTree()
     reduced_tree.Write()
     file_out.Close()
@@ -103,7 +103,7 @@ def process_the_samples(input_sample_list_, truncate_file_ = None, tree_in_dir_ 
             file_list = np.concatenate(file_list)
         # Get file structure, in case there is a grid of mass points
         print file_list
-        f_struct_tmp = rt.TFile(file_list[0], 'r')
+        f_struct_tmp = rt.TFile.Open(file_list[0], 'r')
         tree_list = []
         if tree_in_dir_ is not None and 'SMS' not in sample:
             for tree in tree_in_dir_:
@@ -114,13 +114,14 @@ def process_the_samples(input_sample_list_, truncate_file_ = None, tree_in_dir_ 
         if truncate_file_ is not None:
             file_list = file_list[:truncate_file_]
         if 'SMS' in sample:
-            trees_to_keep = ['SMS_500_420', 'SMS_500_490']
+            trees_to_keep = ['SMS_500_490', 'SMS_500_460', 'SMS_500_420', 'SMS_500_480', 'SMS_600_580', 'SMS_700_680']
+            #trees_to_keep = ['Events']
             #trees_to_keep = []
-            tree_name_mass = [(int(mass.split('_')[1]), int(mass.split('_')[2])) for mass in tree_list]
-            tree_name_mass.sort(key=lambda x: int(x[0]))
             if trees_to_keep:
                 tree_list = trees_to_keep
             else:
+                tree_name_mass = [(int(mass.split('_')[1]), int(mass.split('_')[2])) for mass in tree_list]
+                tree_name_mass.sort(key=lambda x: int(x[0]))
                 tree_list = ['SMS_'+str(mom) + '_' + str(child) for mom, child in tree_name_mass]
 
         f_struct_tmp.Close()
@@ -210,8 +211,6 @@ def write_table(table_array_, reference_, table_name_):
             if not is_background:
                 new_signal_array[sample+'_'+tree] = table_array_[sample][tree]
         is_background = False
-    print background
-    print new_signal_array
     if background:
         for factor, sample in enumerate(new_signal_array):
             if factor == 0:

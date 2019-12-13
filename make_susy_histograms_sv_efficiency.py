@@ -36,32 +36,8 @@ def get_histograms(list_of_files_, variable_list_, cuts_to_apply_=None):
             hist[sample][tree_name] = OrderedDict()
             counts[sample][tree_name] = OrderedDict()
             # Reserve histograms
-            hist[sample][tree_name]['MET'] = rt.TH1D('MET_'+sample+'_'+tree_name, 'E_{T}^{miss} [GeV]', 1024, 0, 1000)
-            hist[sample][tree_name]['MET_postrisr'] = rt.TH1D('MET_postrisr_'+sample+'_'+tree_name, 'E_{T}^{miss} [GeV]', 1024, 0, 1000)
-            hist[sample][tree_name]['NISR_bjets'] = rt.TH1D('NISR_bjets_'+sample+'_'+tree_name, 'N ISR b jets', 20, 0, 20)
-            hist[sample][tree_name]['NS_jets'] = rt.TH1D('NS_jets_'+sample+'_'+tree_name, 'N S jets', 20, 0, 20)
-            hist[sample][tree_name]['N_SVs_preisrb'] = rt.TH1D('N_SVs_preisrb_'+sample+'_'+tree_name, 'N SVs_preisrb', 20, 0, 20)
-            hist[sample][tree_name]['NS_SVs_preisrb'] = rt.TH1D('NS_SVs_preisrb_'+sample+'_'+tree_name, 'N S SVs_preisrb', 20, 0, 20)
-            hist[sample][tree_name]['NISR_SVs_preisrb'] = rt.TH1D('NISR_SVs_preisrb_'+sample+'_'+tree_name, 'N S SVs_preisrb', 20, 0, 20)
-            hist[sample][tree_name]['N_SVs'] = rt.TH1D('N_SVs_'+sample+'_'+tree_name, 'N SVs', 20, 0, 20)
-            hist[sample][tree_name]['NS_SVs'] = rt.TH1D('NS_SVs_'+sample+'_'+tree_name, 'N S SVs', 20, 0, 20)
-            hist[sample][tree_name]['NISR_SVs'] = rt.TH1D('NISR_SVs_'+sample+'_'+tree_name, 'N S SVs', 20, 0, 20)
-            hist[sample][tree_name]['PT_SVs'] = rt.TH1D('PT_SVs_'+sample+'_'+tree_name, 'N S SVs', 512, 0, 1000)
-            hist[sample][tree_name]['NS_STs'] = rt.TH1D('NS_STs_'+sample+'_'+tree_name, 'N S STs', 20, 0, 20)
-            hist[sample][tree_name]['NS_SBs'] = rt.TH1D('NS_SBs_'+sample+'_'+tree_name, 'N S SBs', 20, 0, 20)
-            hist[sample][tree_name]['dphi_lep_MET'] = rt.TH1D('dphi_lep_MET_'+sample+'_'+tree_name, 'dphi l met', 1024, -np.pi, np.pi)
-            hist[sample][tree_name]['MS'] = rt.TH1D('MS_'+sample+'_'+tree_name, 'MS', 1024, 0, 1000)
-            hist[sample][tree_name]['MS_preisrb'] = rt.TH1D('MS_preisrb_'+sample+'_'+tree_name, 'MS pre isrb cut', 1024, 0, 1000)
-            hist[sample][tree_name]['MS_prest'] = rt.TH1D('MS_prest_'+sample+'_'+tree_name, 'MS pre st cut', 1024, 0, 1000)
-            hist[sample][tree_name]['PzS_div_PTISR'] = rt.TH1D('PzS_div_PTISR_'+sample+'_'+tree_name, 'PzS / PzS + MS', 1024, 0, 1)
-            hist[sample][tree_name]['PTS_div_PTISR'] = rt.TH1D('PTS_div_PTISR_'+sample+'_'+tree_name, 'PTS / PTS + MS', 1024, 0, 1)
-            hist[sample][tree_name]['RISR_PTISR'] = rt.TH2D('RISR_PTISR_'+sample+'_'+tree_name, 'MS vs RISR', 1024, 0, 2, 1024, 0, 1000)
-            hist[sample][tree_name]['RISR_PTISR_postscut'] = rt.TH2D('RISR_PTISR_postscut_'+sample+'_'+tree_name, 'MS vs RISR', 1024, 0, 2, 1024, 0, 1000)
-            hist[sample][tree_name]['RISR_PTISR_prest'] = rt.TH2D('RISR_PTISR_prest_'+sample+'_'+tree_name, 'MS vs RISR', 1024, 0, 2, 1024, 0, 1000)
-            hist[sample][tree_name]['RISR_PTISR_preisrb'] = rt.TH2D('RISR_PTISR_preisrb_'+sample+'_'+tree_name, 'MS vs RISR', 1024, 0, 2, 1024, 0, 1000)
-           
-            hist[sample][tree_name]['cos_lep_S'] = rt.TH1D('cos_lep_S_'+sample+'_'+tree_name, 'cos_lep_S', 1024, -1, 1)
-            hist[sample][tree_name]['dphi_lep_S'] = rt.TH1D('dphi_lep_S_'+sample+'_'+tree_name, 'dphi_lep_S', 1024, -np.pi, np.pi)
+            hist[sample][tree_name]['PT_SVs_nodlen'] = rt.TH1D('PT_SVs_'+sample+'_'+tree_name, 'N S SVs', 512, 0, 500)
+            hist[sample][tree_name]['PT_SVs_wdlen'] = rt.TH1D('PT_SVs_'+sample+'_'+tree_name, 'N S SVs', 512, 0, 500)
             
         for ifile, in_file in enumerate(list_of_files_[sample]['files']):
             for tree_name in list_of_files_[sample]['trees']:
@@ -77,8 +53,6 @@ def get_histograms(list_of_files_, variable_list_, cuts_to_apply_=None):
                 ptisr = np.array(sample_array['PTISR'])
 
                 ms = np.array(sample_array['MS'])
-                nlep = np.array(sample_array['Nlep'])
-                nsv = np.array(sample_array['NSV'])
                 nsv_s = np.array(sample_array['NSV_S'])
                 nsv_isr = np.array(sample_array['NSV_ISR'])
                 pt_sv = np.array(sample_array['PT_SV'])
@@ -132,7 +106,7 @@ def get_histograms(list_of_files_, variable_list_, cuts_to_apply_=None):
 
                 weight = 137. * weight
                 
-                one_lep = nlep == 1 
+
                 ################        Medium       #####################
                 mini_lep = np.array([mini[lid>=2]*pt[lid>=2] for mini, lid, pt in zip(mini_lep, id_lep, pt_lep)])
 
@@ -145,7 +119,7 @@ def get_histograms(list_of_files_, variable_list_, cuts_to_apply_=None):
                 #m_med_lep = np.array([lep[lid>=2] for lep, lid in zip(m_lep, id_lep)]) 
                 #m_mini_lep = np.array([lep[mini<0.1] for lep, mini in zip(m_med_lep, mini_lep)])
 
-                mini_med_mask = np.array([ True if len(mini[mini<6]) == 1 and one else False for mini, one in zip(mini_lep,one_lep)])
+                mini_med_mask = np.array([ True if len(mini[mini<6]) == 1 and len(lid) == 1 else False for mini, lid in zip(mini_lep,id_lep)])
                 
                 risr_0p95 = risr > 0.95
                 risr_0p8 = risr > 0.8
@@ -189,12 +163,8 @@ def get_histograms(list_of_files_, variable_list_, cuts_to_apply_=None):
 
                 nbjet_isr = nbjet_isr[evt_isrb_selection_mask]
 
-                nsv_s_pre = nsv_s[evt_isrb_selection_mask]
-                nsv_pre = nsv[evt_isrb_selection_mask]
-                nsv_isr_pre = nsv_isr[evt_isrb_selection_mask]
                 njet_s = njet_s[evt_sj_selection_mask]
                 nsv_s = nsv_s[evt_sj_selection_mask]
-                nsv = nsv[evt_sj_selection_mask]
                 nsv_isr = nsv_isr[evt_sj_selection_mask]
                 pt_sv = np.array([ pt for pt, mask in zip(pt_sv, evt_sj_selection_mask) if mask])
                 sj_sv_weight = [[w]*len(sv) for sv, w in zip(pt_sv, sj_weight)]
@@ -235,15 +205,12 @@ def get_histograms(list_of_files_, variable_list_, cuts_to_apply_=None):
                     rnp.fill_hist(hist[sample][tree_name]['NISR_bjets'], nbjet_isr, isrb_weight) 
                     rnp.fill_hist(hist[sample][tree_name]['MS_preisrb'], ms_isrb, isrb_weight) 
                     rnp.fill_hist(hist[sample][tree_name]['MET_postrisr'], met_isrb, isrb_weight) 
-                    rnp.fill_hist(hist[sample][tree_name]['NS_SVs_preisrb'], nsv_s_pre, isrb_weight) 
-                    rnp.fill_hist(hist[sample][tree_name]['N_SVs_preisrb'], nsv_pre, isrb_weight) 
-                    rnp.fill_hist(hist[sample][tree_name]['NISR_SVs_preisrb'], nsv_isr_pre, isrb_weight) 
 
                 if np.any(evt_sj_selection_mask):
                     rnp.fill_hist(hist[sample][tree_name]['RISR_PTISR_prest'], np.swapaxes([risr_sj, ptisr_risr_sj],0,1), sj_weight) 
                     rnp.fill_hist(hist[sample][tree_name]['NS_jets'], njet_s, sj_weight) 
+                    rnp.fill_hist(hist[sample][tree_name]['NS_jets'], njet_s, sj_weight) 
                     rnp.fill_hist(hist[sample][tree_name]['NS_SVs'], nsv_s, sj_weight) 
-                    rnp.fill_hist(hist[sample][tree_name]['N_SVs'], nsv, sj_weight) 
                     rnp.fill_hist(hist[sample][tree_name]['NISR_SVs'], nsv_isr, sj_weight) 
                     rnp.fill_hist(hist[sample][tree_name]['PT_SVs'], np.concatenate(pt_sv), np.concatenate(sj_sv_weight)) 
                     rnp.fill_hist(hist[sample][tree_name]['NS_STs'], nst_s, sj_weight) 
@@ -285,16 +252,16 @@ if __name__ == "__main__":
 #    'SMS-TChiWH' : [ 
 #                    '/home/t3-ku/crogan/NTUPLES/NANO/NoHadd/Fall17_94X_SMS/SMS-TChiWH_WToLNu_HToBB_TuneCP2_13TeV-madgraphMLM-pythia8_Fall17_94X',
 #],
-#    'SMS-T2tt_dM' : [
-#                    #'/home/t3-ku/crogan/NTUPLES/NANO/NoHadd/Fall17_94X_SMS_Stop/SMS-T2tt_dM-10to80_genHT-160_genMET-80_mWMin-0p1_TuneCP2_13TeV-madgraphMLM-pythia8_Fall17_94X',
-#                    '/home/t3-ku/crogan/NTUPLES/NANO/Fall17_94X_SMS/SMS-T2tt_dM-10to80_genHT-160_genMET-80_mWMin-0p1_TuneCP2_13TeV-madgraphMLM-pythia8_Fall17_94X.root',
-#], 
+    'SMS-T2tt_dM' : [
+                    #'/home/t3-ku/crogan/NTUPLES/NANO/NoHadd/Fall17_94X_SMS_Stop/SMS-T2tt_dM-10to80_genHT-160_genMET-80_mWMin-0p1_TuneCP2_13TeV-madgraphMLM-pythia8_Fall17_94X',
+                    '/home/t3-ku/crogan/NTUPLES/NANO/Fall17_94X_SMS/SMS-T2tt_dM-10to80_genHT-160_genMET-80_mWMin-0p1_TuneCP2_13TeV-madgraphMLM-pythia8_Fall17_94X.root',
+], 
               }
     backgrounds = {
     'TTJets_2017' : [
 #                     '/home/t3-ku/crogan/NTUPLES/NANO/NoHadd/Fall17_94X_bkg/TTJets_TuneCP5_13TeV-madgraphMLM-pythia8_Fall17_94X'
 #                     '/home/t3-ku/crogan/NTUPLES/NANO/NoHadd/Fall17_94X_bkg/TTJets_TuneCP5_13TeV-madgraphMLM-pythia8_Fall17_94X'
-#                     '/home/t3-ku/crogan/NTUPLES/NANO/NoHadd/Fall17_94X_bkgextra/TTTT_TuneCP5_PSweights_13TeV-amcatnlo-pythia8_Fall17_94X',
+                     '/home/t3-ku/crogan/NTUPLES/NANO/NoHadd/Fall17_94X_bkgextra/TTTT_TuneCP5_PSweights_13TeV-amcatnlo-pythia8_Fall17_94X',
                      '/home/t3-ku/crogan/NTUPLES/NANO/NoHadd/Fall17_94X_bkgextra/TTJets_DiLept_TuneCP5_13TeV-madgraphMLM-pythia8_Fall17_94X',
                      '/home/t3-ku/crogan/NTUPLES/NANO/NoHadd/Fall17_94X_bkgextra/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8_Fall17_94X',
                      '/home/t3-ku/crogan/NTUPLES/NANO/NoHadd/Fall17_94X_bkgextra/TTJets_SingleLeptFromTbar_TuneCP5_13TeV-madgraphMLM-pythia8_Fall17_94X',
@@ -353,19 +320,19 @@ if __name__ == "__main__":
 #                    '/home/t3-ku/crogan/NTUPLES/NANO/NoHadd/Fall17_94X_bkg/WZ_TuneCP5_13TeV-pythia8_Fall17_94X',
 #],
                   }
-    variables = ['MET', 'MET_phi', 'MS', 'PS', 'PTS', 'PzS', 'dphiSI', 'dphiCMI', 'RISR', 'PTISR', 'PT_lep', 'Eta_lep', 'Phi_lep', 'M_lep', 'MiniIso_lep', 'ID_lep', 'Njet_S', 'Nbjet_S', 'Nbjet_ISR', 'NSV_S', 'NSV_ISR', 'cos_lep_S', 'dphi_lep_S', 'weight', 'PT_SV', 'NSV', 'Nlep']
+    variables = ['MET', 'MET_phi', 'MS', 'PS', 'PTS', 'PzS', 'dphiSI', 'dphiCMI', 'RISR', 'PTISR', 'PT_lep', 'Eta_lep', 'Phi_lep', 'M_lep', 'MiniIso_lep', 'ID_lep', 'Njet_S', 'Nbjet_S', 'Nbjet_ISR', 'NSV_S', 'NSV_ISR', 'cos_lep_S', 'dphi_lep_S', 'weight', 'PT_SV']
 
     start_b = time.time()    
-    #background_list = process_the_samples(backgrounds, None, None)
-    #hist_background = get_histograms(background_list, variables, None)
+    background_list = process_the_samples(backgrounds, None, None)
+    hist_background = get_histograms(background_list, variables, None)
 
-    #write_hists_to_file(hist_background, './output_background_risr_0p8_mixed_absolute_'+date+'.root') 
+    write_hists_to_file(hist_background, './output_background_risr_0p8_mixed_test_absolute_'+date+'.root') 
     stop_b = time.time()
 
     signal_list = process_the_samples(signals, None, None)
     hist_signal = get_histograms(signal_list, variables, None)
 
-    write_hists_to_file(hist_signal, './output_signal_risr_0p8_mixed_absolute_'+date+'.root') 
+    write_hists_to_file(hist_signal, './output_signal_risr_0p8_mixed_test_absolute_'+date+'.root') 
     stop_s = time.time()
 
     print "background: ", stop_b - start_b

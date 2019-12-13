@@ -1,13 +1,16 @@
-These scripts convert ROOT trees into numpy arrays and creates histograms using these arrays
+
+These scripts convert ROOT trees into numpy arrays and creates histograms for use with the KU Ewkino Analysis.
 
 histograms and arrays are saved in a dictionary structure based on the sample and file name, functions return these dictionaries.
 
 The dictionaries can be used interactively or in their own script
 
+Different copies of scripts are used to make different histograms
 
-Use of these scripts require root, root_numpy, and numpy
+file_table_functions.py: Contains functions for converting TTrees into numpy arrays, making output tables, reading in histograms from root files for plotting
 
-To install root_numpy using CVMFS (at unl/lpc/lxplus) follow the directions here:
-scikit-hep.org/root_numpy/start.html
+make_table*.py: used for making tables of events for different cut selections, allows for making multiple different cut regions, and saving the events for each one in a dictionary
 
-OR: just setup a CMSSW environment
+make_susy_hist*
+get_those*: making histograms using the numpy arrays, makes use of list comprehension to deal with jagged arrays, and fancy indexing for applying selection
+
