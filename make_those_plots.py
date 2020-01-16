@@ -51,8 +51,8 @@ def make_2D_plots(hists_, suffix_):
                 if hist_name not in pc: continue
                 can = make_me_a_canvas()
                 can.cd() 
-                if 'N' not in hist_name.split('_')[0]: hist.RebinX(1)
-                if 'N' not in hist_name.split('_')[1]: hist.RebinY(1)
+                if 'N' not in hist_name.split('_')[0]: hist.RebinX(8)
+                if 'N' not in hist_name.split('_')[1]: hist.RebinY(8)
                 hist.Draw("COLZ")
                 hist.GetXaxis().CenterTitle()
                 hist.GetXaxis().SetTitleFont(42)
@@ -249,7 +249,7 @@ def make_plots(hists_, sig_hists_ = None, print_plots = True, suffix_=''):
                     if not hist.InheritsFrom(rt.TH1.Class()): continue                    
                     if hist.InheritsFrom(rt.TH2.Class()): continue  
                     if not hist.GetEntries() > 0.: continue                 
-                    #if 'T2bW' in sample and '460' not in tree: continue 
+                    if 'T2bW' in sample and '460' not in tree: continue 
                     sig_hists_tmp[hist_name][sample][tree] = hist
     for hist in n_entries:
         n_entries[hist] = OrderedDict(sorted(n_entries[hist].items(), key=lambda x: x[1]))
@@ -571,7 +571,7 @@ def make_1D_plots(hists_, suffix_):
                 can = make_me_a_canvas()
                 can.cd()
                 hist.Draw('hist')
-                if 'N' not in hist_name: hist.Rebin(1) 
+                if 'N' not in hist_name: hist.Rebin(8) 
                 hist.SetLineColor(sc[sample]['color'])
                 hist.SetLineStyle(sc[sample]['style'])
                 hist.SetLineWidth(sc[sample]['width'])
@@ -690,21 +690,22 @@ def read_in_hists_opt(in_file_):
 
 
 if __name__ == "__main__":
-    signal_file = './output_signal_risr_0p8_mixed_eta_10Dec19.root'
+    #signal_file = './output_signal_risr_95_mixed_10Jan20.root'
+    signal_file = './output_signal_risr_mixed_10Jan20.root'
     sig_hists = read_in_hists(signal_file)
-    #suffix = 'nsv_4bd'
-    suffix = 'eta'
+    #suffix = '0p95'
+    suffix = 'all'
     #sig_hists_new = make_new_hists(sig_hists)
     #print sig_hists_new
-    make_2D_plots(sig_hists, suffix)
     make_1D_plots(sig_hists, suffix)
 
-    background_file = './output_background_risr_0p8_mixed_eta_10Dec19.root'
+    #background_file = './output_background_risr_95_mixed_10Jan20.root'
+    background_file = './output_background_risr_mixed_10Jan20.root'
     b_hists = read_in_hists(background_file)
-    #suffix = 'nsv_4bd'
-    suffix = 'eta'
+    suffix = 'all'
     #b_hists = make_new_hists(b_hists)
-    make_2D_plots(b_hists, suffix)
     make_1D_plots(b_hists, suffix)
     make_stacked_plots(b_hists, sig_hists, True, suffix)
-    #make_plots(b_hists, sig_hists, True, suffix)
+    make_plots(b_hists, sig_hists, True, suffix)
+    make_2D_plots(sig_hists, suffix)
+    make_2D_plots(b_hists, suffix)
